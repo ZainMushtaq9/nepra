@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /uploads/
+Disallow: /login/
+Disallow: /register/
+
+Sitemap: https://neprabillprotection.com/sitemap.xml

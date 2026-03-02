@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden fade-in">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <h3 class="fw-bold mb-0">Create an Account</h3>
+                <p class="mb-0 small text-white-50">Join NEPRA Bill Protection today to secure your rights</p>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form action="" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.name.label(class="form-label fw-bold text-muted small") }}
+                        {{ form.name(class="form-control form-control-lg bg-light", placeholder="John Doe") }}
+                        {% for error in form.name.errors %}
+                        <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.email.label(class="form-label fw-bold text-muted small") }}
+                        {{ form.email(class="form-control form-control-lg bg-light", placeholder="name@example.com") }}
+                        {% for error in form.email.errors %}
+                        <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            {{ form.password.label(class="form-label fw-bold text-muted small") }}
+                            {{ form.password(class="form-control form-control-lg bg-light", placeholder="••••••••") }}
+                            {% for error in form.password.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            {{ form.confirm_password.label(class="form-label fw-bold text-muted small") }}
+                            {{ form.confirm_password(class="form-control form-control-lg bg-light",
+                            placeholder="••••••••") }}
+                            {% for error in form.confirm_password.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" required>
+                        <label class="form-check-label small text-muted" for="terms">I agree to the <a href="#">Terms of
+                                Service</a> and <a href="#">Privacy Policy</a>.</label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-warning text-dark btn-lg fw-bold rounded-pill shadow-sm") }}
+                    </div>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <p class="text-muted small">Or sign up with</p>
+                    <a href="#"
+                        class="btn border shadow-sm rounded-pill py-2 w-100 mb-3 fw-bold text-dark bg-white shadow-hover">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20"
+                            class="me-2"> Google
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer bg-light text-center py-3 border-0">
+                <p class="mb-0 text-muted small">Already have an account? <a href="{{ url_for('main.login') }}"
+                        class="fw-bold text-primary text-decoration-none">Log in here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
