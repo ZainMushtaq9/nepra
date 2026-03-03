@@ -5,13 +5,16 @@ from urllib.parse import urlsplit
 import os
 import json
 from werkzeug.utils import secure_filename
+from flask import send_file
 
 from app import db
 from app.main import bp
-from app.models import User, Bill
-from app.main.forms import LoginForm, RegistrationForm, UploadForm
+from app.models import User, Bill, Chat
+from app.main.forms import LoginForm, RegistrationForm, UploadForm, ChatForm
 from app.logic.ocr import extract_text_from_image, parse_bill_data
 from app.logic.reasoning import analyze_bill
+from app.logic.ai import generate_ai_response
+from app.logic.generator import generate_complaint_docx
 
 @bp.route('/')
 @bp.route('/index')
@@ -83,9 +86,83 @@ def upload():
         db.session.commit()
         
         flash('Bill analyzed successfully!', 'success')
-        # return redirect(url_for('main.results', bill_id=bill.id)) 
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.results', bill_id=bill.id)) 
     return render_template('upload.html', title='Upload Bill', form=form)
+
+@bp.route('/results/<int:bill_id>')
+@login_required
+def results(bill_id):
+    bill = Bill.query.get_or_404(bill_id)
+    if bill.user_id != current_user.id:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    # Parse JSON string back to dict for the template
+    try:
+        bill_data = json.loads(bill.bill_json)
+    except:
+        bill_data = {}
+        
+    return render_template('results.html', title='Analysis Results', bill=bill, bill_data=bill_data)
+
+@bp.route('/download/<int:bill_id>')
+@login_required
+def download_complaint(bill_id):
+    bill = Bill.query.get_or_404(bill_id)
+    if bill.user_id != current_user.id:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.dashboard'))
+        
+    filename, filepath = generate_complaint_docx(bill)
+    
+    return send_file(filepath, as_attachment=True, download_name=filename)
+
+@bp.route('/chat', methods=['GET', 'POST'])
+@login_required
+def chat():
+    form = ChatForm()
+    # Handle AJAX posts from JS
+    if request.method == 'POST' and form.validate_on_submit():
+        user_message = form.message.data
+        
+        # Save user message to DB
+        chat_entry = Chat(user_id=current_user.id, message=user_message, response="")
+        db.session.add(chat_entry)
+        db.session.commit()
+        
+        # Get history (last 5 messages) for context
+        history_query = Chat.query.filter_by(user_id=current_user.id).order_by(Chat.timestamp.desc()).limit(5).all()
+        history_query.reverse()
+        
+        chat_history = []
+        for h in history_query[:-1]: # exclude the current one we just added
+            if h.message:
+                chat_history.append({"role": "user", "content": h.message})
+            if h.response:
+                chat_history.append({"role": "assistant", "content": h.response})
+                
+        # Call Groq API
+        ai_response = generate_ai_response(user_message, chat_history)
+        
+        # Update DB with AI response
+        chat_entry.response = ai_response
+        db.session.commit()
+        
+        # If it's an AJAX request (fetch), return JSON
+        if request.headers.get('Accept') == 'application/json':
+            return {"status": "success", "response": ai_response, "message": user_message}
+            
+        return redirect(url_for('main.chat'))
+        
+    # Get all chat history for rendering the page
+    chats = Chat.query.filter_by(user_id=current_user.id).order_by(Chat.timestamp.asc()).all()
+    return render_template('chat.html', title='AI Legal Chat', form=form, chats=chats)
+
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    bills = Bill.query.filter_by(user_id=current_user.id).order_by(Bill.created_at.desc()).all()
+    return render_template('dashboard.html', title='Dashboard', bills=bills)
 
 @bp.route('/robots.txt')
 @bp.route('/sitemap.xml')

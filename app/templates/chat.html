@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center my-4">
+    <div class="col-lg-10">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden fade-in" style="height: 80vh;">
+            <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-robot text-primary me-2"></i> NEPRA AI Legal Assistant
+                    </h5>
+                    <small class="text-white-50">Powered by LLaMA 3.3 70B</small>
+                </div>
+                <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-outline-light rounded-pill">Back</a>
+            </div>
+
+            <div class="card-body p-0 d-flex flex-column bg-light relative">
+                <!-- Chat Messages Area -->
+                <div id="chat-messages" class="flex-grow-1 p-4 overflow-auto" style="scroll-behavior: smooth;">
+                    <!-- Welcome Message -->
+                    <div class="d-flex mb-4 ai-message">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                            style="width: 40px; height: 40px; min-width: 40px;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border border-primary-subtle"
+                            style="max-width: 80%;">
+                            <p class="mb-0 text-dark">Hello {{ current_user.name }}! I am your AI legal assistant
+                                specialized in the NEPRA Consumer Service Manual. How can I help you today with your
+                                electricity billing or rights?</p>
+                        </div>
+                    </div>
+
+                    <!-- History -->
+                    {% for chat in chats %}
+                    <!-- User Message -->
+                    {% if chat.message %}
+                    <div class="d-flex mb-4 justify-content-end user-message">
+                        <div class="me-3 bg-primary text-white p-3 rounded-4 rounded-top-0 shadow-sm"
+                            style="max-width: 80%;">
+                            <p class="mb-0">{{ chat.message }}</p>
+                        </div>
+                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                            style="width: 40px; height: 40px; min-width: 40px;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- AI Response -->
+                    {% if chat.response %}
+                    <div class="d-flex mb-4 ai-message">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                            style="width: 40px; height: 40px; min-width: 40px;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border" style="max-width: 80%;">
+                            <div class="mb-0 text-dark markdown-body">{{ chat.response | safe }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    <!-- Loading Indicator (Hidden by default) -->
+                    <div id="loading-indicator" class="d-flex mb-4 d-none">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                            style="width: 40px; height: 40px;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div
+                            class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border d-flex align-items-center">
+                            <div class="spinner-grow spinner-grow-sm text-primary me-1" role="status"></div>
+                            <div class="spinner-grow spinner-grow-sm text-primary me-1" role="status"></div>
+                            <div class="spinner-grow spinner-grow-sm text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="p-3 bg-white border-top">
+                    <form id="chat-form" action="{{ url_for('main.chat') }}" method="POST">
+                        {{ form.hidden_tag() }}
+                        <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
+                            {{ form.message(class="form-control border-0 px-4 bg-light", placeholder="Ask a question
+                            about NEPRA rules...", autocomplete="off") }}
+                            <button class="btn btn-primary px-4 fw-bold" type="submit" id="send-btn">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Simple script for dynamic chat updates -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message');
+        const sendBtn = document.getElementById('send-btn');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        // Scroll to bottom initially
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        chatForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Append user message to UI immediately
+            const userHtml = `
+            <div class="d-flex mb-4 justify-content-end user-message fade-in">
+                <div class="me-3 bg-primary text-white p-3 rounded-4 rounded-top-0 shadow-sm" style="max-width: 80%;">
+                    <p class="mb-0">${message}</p>
+                </div>
+                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; min-width: 40px;">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        `;
+
+            // Remove loading if it was there (shouldn't be)
+            loadingIndicator.classList.add('d-none');
+
+            // Insert user message before loading indicator
+            chatMessages.insertAdjacentHTML('beforeend', userHtml);
+
+            // Show loading indicator
+            chatMessages.appendChild(loadingIndicator);
+            loadingIndicator.classList.remove('d-none');
+
+            // Scroll
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Clear input and disable button
+            messageInput.value = '';
+            sendBtn.disabled = true;
+
+            // Prepare form data including CSRF
+            const formData = new FormData(chatForm);
+            formData.set('message', message);
+
+            try {
+                const response = await fetch('{{ url_for("main.chat") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Format markdown links/bold basic (Real implementation might use a Markdown parser lib)
+                    let formattedText = data.response
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\n/g, '<br>');
+
+                    const aiHtml = `
+                    <div class="d-flex mb-4 ai-message fade-in">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; min-width: 40px;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border" style="max-width: 80%;">
+                            <div class="mb-0 text-dark">${formattedText}</div>
+                        </div>
+                    </div>
+                `;
+
+                    loadingIndicator.classList.add('d-none');
+                    chatMessages.insertAdjacentHTML('beforeend', aiHtml);
+                    chatMessages.appendChild(loadingIndicator); // move loading to end again
+                } else {
+                    loadingIndicator.classList.add('d-none');
+                    alert("Error communicating with AI. Please try again.");
+                }
+            } catch (error) {
+                console.error(error);
+                loadingIndicator.classList.add('d-none');
+                alert("Network error.");
+            } finally {
+                sendBtn.disabled = false;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+    });
+</script>
+{% endblock %}

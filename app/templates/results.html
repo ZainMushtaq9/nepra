@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center my-4">
+    <div class="col-lg-10">
+        <!-- Results Header -->
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4 fade-in">
+            <div class="card-header bg-dark text-white p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="fw-bold mb-1">Analysis Report</h3>
+                        <p class="mb-0 text-white-50">Reference: {{ bill_data.get('Reference No', 'N/A') }}</p>
+                    </div>
+                    <div>
+                        {% if bill.fault_type == 'Company Fault' %}
+                        <span class="badge bg-warning text-dark rounded-pill px-4 py-2 fs-6 shadow-sm"><i
+                                class="fas fa-exclamation-triangle me-2"></i>{{ bill.fault_type }}</span>
+                        {% elif bill.fault_type == 'Consumer Mistake' %}
+                        <span class="badge bg-danger text-white rounded-pill px-4 py-2 fs-6 shadow-sm"><i
+                                class="fas fa-user-times me-2"></i>{{ bill.fault_type }}</span>
+                        {% else %}
+                        <span class="badge bg-success text-white rounded-pill px-4 py-2 fs-6 shadow-sm"><i
+                                class="fas fa-check-circle me-2"></i>{{ bill.fault_type }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5 bg-light">
+                <div class="row align-items-center mb-5">
+                    <div class="col-md-8">
+                        <h4 class="fw-bold text-primary mb-3">Diagnostic Findings</h4>
+                        <p class="lead mb-0" style="line-height: 1.8;">
+                            {{ bill.analysis_result }}
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center mt-4 mt-md-0 border-start ps-md-4">
+                        <h1 class="display-5 fw-bold text-dark mb-1">Rs. {{ bill_data.get('Total Amount', '0') }}</h1>
+                        <p class="text-muted text-uppercase small fw-bold tracking-wider">Total Payable Amount</p>
+                    </div>
+                </div>
+
+                <!-- Extracted Data Panel -->
+                <div class="bg-white p-4 rounded-4 shadow-sm border mb-5">
+                    <h5 class="fw-bold border-bottom pb-3 mb-4"><i class="fas fa-search me-2 text-muted"></i>OCR
+                        Extracted Details</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span class="text-muted">Units Consumed</span>
+                                    <span class="fw-bold">{{ bill_data.get('Units Consumed', '0') }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span class="text-muted">Arrears</span>
+                                    <span class="fw-bold text-danger">Rs. {{ bill_data.get('Arrears', '0') }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span class="text-muted">FPA (Fuel Adjustment)</span>
+                                    <span class="fw-bold">Rs. {{ bill_data.get('FPA', '0') }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span class="text-muted">Date Analyzed</span>
+                                    <span class="fw-bold">{{ bill.created_at.strftime('%Y-%m-%d') }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Panel -->
+                <div class="text-center p-4 bg-primary bg-opacity-10 rounded-4 border border-primary-subtle">
+                    {% if bill.fault_type != 'Normal' %}
+                    <h4 class="fw-bold mb-3">Take Legal Action Automatically</h4>
+                    <p class="text-muted mb-4 px-md-5">Our AI has formulated a legally sound complaint application
+                        addressed to the relevant authority based on the NEPRA Consumer Service Manual.</p>
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ url_for('main.download_complaint', bill_id=bill.id) }}"
+                            class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow">
+                            <i class="fas fa-file-word me-2"></i> Download DOCX Application
+                        </a>
+                    </div>
+                    {% else %}
+                    <h4 class="fw-bold mb-3">No Action Required</h4>
+                    <p class="text-muted mb-0">Your bill appears to follow standard procedures. You can save this
+                        analysis for your records.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-5">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-dark rounded-pill px-4"><i
+                    class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+            <a href="{{ url_for('main.chat') }}" class="btn btn-link text-decoration-none ms-3 fw-bold">Ask AI a
+                Question <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+
+        <!-- AdSense Place -->
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4 p-4 text-center bg-light">
+            <div class="text-muted ad-container" style="min-height: 90px; overflow: hidden;">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXX"
+                    data-ad-slot="1234567890" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -28,3 +28,7 @@ class UploadForm(FlaskForm):
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])
     submit = SubmitField('Analyze Bill')
+
+class ChatForm(FlaskForm):
+    message = StringField('Ask a question...', validators=[DataRequired()])
+    submit = SubmitField('Send')
