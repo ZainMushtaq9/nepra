@@ -1,10 +1,12 @@
-# app/logic/ai.py
 import os
 from groq import Groq
 
 # Initialize the Groq client
 # Ensure GROQ_API_KEY is set in your .env
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+api_key = os.environ.get("GROQ_API_KEY")
+client = None
+if api_key:
+    client = Groq(api_key=api_key)
 
 # Define the system prompt once, so the model knows its persona
 SYSTEM_PROMPT = """You are a legal expert specializing in the NEPRA (National Electric Power Regulatory Authority) Consumer Service Manual of Pakistan. 
@@ -21,6 +23,9 @@ def generate_ai_response(user_message, chat_history=None):
     :param chat_history: A list of previous dict messages [{"role": "user"/"assistant", "content": "..."}]
     :return: The string response from the AI.
     """
+    if not client:
+        return "I'm sorry, my AI backend is currently unconfigured. Please provide a Groq API Key."
+
     # Start with the system prompt
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT}

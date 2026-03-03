@@ -10,11 +10,12 @@ from flask import send_file
 from app import db
 from app.main import bp
 from app.models import User, Bill, Chat
-from app.main.forms import LoginForm, RegistrationForm, UploadForm, ChatForm
+from app.main.forms import LoginForm, RegistrationForm, UploadForm, ChatForm, DirectFetchForm
 from app.logic.ocr import extract_text_from_image, parse_bill_data
 from app.logic.reasoning import analyze_bill
 from app.logic.ai import generate_ai_response
 from app.logic.generator import generate_complaint_docx
+from app.logic.scraper import scrape_pitc_bill
 
 @bp.route('/')
 @bp.route('/index')

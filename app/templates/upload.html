@@ -15,21 +15,72 @@
                         get started.</p>
                 </div>
 
-                <form action="" method="post" enctype="multipart/form-data" novalidate>
-                    {{ form.hidden_tag() }}
+                <!-- Tabs for Upload vs Fetch -->
+                <ul class="nav nav-tabs nav-fill mb-4" id="billTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold" id="upload-tab" data-bs-toggle="tab"
+                            data-bs-target="#upload" type="button" role="tab" aria-controls="upload"
+                            aria-selected="true"><i class="fas fa-camera me-2"></i>Upload Photo</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-success" id="fetch-tab" data-bs-toggle="tab"
+                            data-bs-target="#fetch" type="button" role="tab" aria-controls="fetch"
+                            aria-selected="false"><i class="fas fa-magic me-2"></i>Auto Fetch (100% Accurate)</button>
+                    </li>
+                </ul>
 
-                    <div class="mb-4">
-                        {{ form.bill_image.label(class="form-label fw-bold text-muted small") }}
-                        {{ form.bill_image(class="form-control form-control-lg bg-light", accept=".jpg,.jpeg,.png") }}
-                        {% for error in form.bill_image.errors %}
-                        <span class="text-danger small">{{ error }}</span>
-                        {% endfor %}
+                <div class="tab-content" id="billTabsContent">
+                    <!-- UPLOAD FORM TAB -->
+                    <div class="tab-pane fade show active" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+                        <form action="{{ url_for('main.upload') }}" method="post" enctype="multipart/form-data"
+                            novalidate>
+                            {{ form.hidden_tag() }}
+
+                            <div class="mb-4">
+                                {{ form.bill_image.label(class="form-label fw-bold text-muted small") }}
+                                {{ form.bill_image(class="form-control form-control-lg bg-light",
+                                accept=".jpg,.jpeg,.png") }}
+                                {% for error in form.bill_image.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                {{ form.submit(class="btn btn-primary text-white btn-lg fw-bold rounded-pill shadow-sm")
+                                }}
+                            </div>
+                        </form>
                     </div>
 
-                    <div class="d-grid gap-2 mt-5">
-                        {{ form.submit(class="btn btn-warning text-dark btn-lg fw-bold rounded-pill shadow-sm") }}
+                    <!-- FETCH FORM TAB -->
+                    <div class="tab-pane fade" id="fetch" role="tabpanel" aria-labelledby="fetch-tab">
+                        <form action="{{ url_for('main.fetch') }}" method="post" novalidate>
+                            {{ fetch_form.hidden_tag() }}
+
+                            <div class="mb-3">
+                                {{ fetch_form.ref_no.label(class="form-label fw-bold text-muted small") }}
+                                {{ fetch_form.ref_no(class="form-control form-control-lg bg-light", placeholder="e.g.
+                                05151280432603") }}
+                                {% for error in fetch_form.ref_no.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-4">
+                                {{ fetch_form.company.label(class="form-label fw-bold text-muted small") }}
+                                {{ fetch_form.company(class="form-select form-select-lg bg-light") }}
+                                {% for error in fetch_form.company.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                {{ fetch_form.submit_fetch(class="btn btn-success text-white btn-lg fw-bold rounded-pill
+                                shadow-sm") }}
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
 
                 <div class="mt-4 pt-3 border-top text-center">
                     <p class="text-muted small mb-0"><i class="fas fa-lock me-2 text-success"></i> Your data is

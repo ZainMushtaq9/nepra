@@ -42,6 +42,7 @@ class Bill(db.Model):
     bill_json: so.Mapped[str] = so.mapped_column(sa.Text) # Storing JSON string
     analysis_result: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
     fault_type: so.Mapped[Optional[str]] = so.mapped_column(sa.String(50))
+    raw_html: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
 
     author: so.Mapped[User] = so.relationship(back_populates='bills')

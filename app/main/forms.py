@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from app.models import User
 
 class LoginForm(FlaskForm):
@@ -32,3 +32,19 @@ class UploadForm(FlaskForm):
 class ChatForm(FlaskForm):
     message = StringField('Ask a question...', validators=[DataRequired()])
     submit = SubmitField('Send')
+
+class DirectFetchForm(FlaskForm):
+    ref_no = StringField('14-Digit Reference No', validators=[DataRequired(), Length(min=14, max=14, message="Must be exactly 14 characters")])
+    company = SelectField('Distributor', choices=[
+        ('lescobill', 'LESCO (Lahore)'),
+        ('mepcobill', 'MEPCO (Multan)'),
+        ('fescobill', 'FESCO (Faisalabad)'),
+        ('iescobill', 'IESCO (Islamabad)'),
+        ('gepcobill', 'GEPCO (Gujranwala)'),
+        ('pescobill', 'PESCO (Peshawar)'),
+        ('hescobill', 'HESCO (Hyderabad)'),
+        ('sepcobill', 'SEPCO (Sukkur)'),
+        ('qescobill', 'QESCO (Quetta)'),
+        ('tescobill', 'TESCO (Tribal Areas)')
+    ], validators=[DataRequired()])
+    submit_fetch = SubmitField('Fetch Bill Data')
