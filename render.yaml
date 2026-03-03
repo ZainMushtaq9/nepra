@@ -2,6 +2,7 @@ services:
   - type: web
     name: nepra-bill-protection
     runtime: python
+    plan: free
     buildCommand: "pip install -r requirements.txt && flask db upgrade"
     startCommand: "gunicorn -w 4 -b 0.0.0.0:$PORT 'nepra:app'"
     envVars:
@@ -18,3 +19,4 @@ databases:
   - name: nepra-db
     databaseName: nepra
     user: nepra_user
+    plan: free
