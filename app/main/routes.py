@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, send_from_directory
+from flask import render_template, flash, redirect, url_for, request, send_from_directory, Response
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from urllib.parse import urlsplit
@@ -117,6 +117,24 @@ def download_complaint(bill_id):
     filename, filepath = generate_complaint_docx(bill)
     
     return send_file(filepath, as_attachment=True, download_name=filename)
+
+@bp.route('/download_html/<int:bill_id>')
+@login_required
+def download_html(bill_id):
+    bill = Bill.query.get_or_404(bill_id)
+    if bill.user_id != current_user.id:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.dashboard'))
+        
+    if not bill.raw_html:
+        flash('No original web bill available for this entry.', 'warning')
+        return redirect(url_for('main.results', bill_id=bill.id))
+        
+    return Response(
+        bill.raw_html,
+        mimetype="text/html",
+        headers={"Content-Disposition": f"inline; filename=original_bill_{bill.id}.html"}
+    )
 
 @bp.route('/chat', methods=['GET', 'POST'])
 @login_required

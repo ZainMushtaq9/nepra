@@ -79,16 +79,30 @@
                     <p class="text-muted mb-4 px-md-5">Our AI has formulated a legally sound complaint application
                         addressed to the relevant authority based on the NEPRA Consumer Service Manual.</p>
 
-                    <div class="d-flex justify-content-center gap-3">
+                    <div class="d-flex justify-content-center flex-wrap gap-3">
                         <a href="{{ url_for('main.download_complaint', bill_id=bill.id) }}"
                             class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow">
                             <i class="fas fa-file-word me-2"></i> Download DOCX Application
                         </a>
+                        {% if bill.raw_html %}
+                        <a href="{{ url_for('main.download_html', bill_id=bill.id) }}" target="_blank"
+                            class="btn btn-outline-primary btn-lg rounded-pill px-4 fw-bold shadow-sm bg-white">
+                            <i class="fas fa-globe me-2"></i> View Exact Web Bill
+                        </a>
+                        {% endif %}
                     </div>
                     {% else %}
                     <h4 class="fw-bold mb-3">No Action Required</h4>
-                    <p class="text-muted mb-0">Your bill appears to follow standard procedures. You can save this
+                    <p class="text-muted mb-4">Your bill appears to follow standard procedures. You can save this
                         analysis for your records.</p>
+                    {% if bill.raw_html %}
+                    <div class="d-flex justify-content-center mt-3">
+                        <a href="{{ url_for('main.download_html', bill_id=bill.id) }}" target="_blank"
+                            class="btn btn-outline-primary btn-lg rounded-pill px-4 fw-bold shadow-sm bg-white">
+                            <i class="fas fa-globe me-2"></i> View Exact Web Bill
+                        </a>
+                    </div>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
