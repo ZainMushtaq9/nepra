@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-8 col-lg-5">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden fade-in">
+            <div class="card-header bg-dark text-white text-center py-4">
+                <h3 class="fw-bold mb-1"><i class="fas fa-cog me-2"></i>Settings</h3>
+                <p class="mb-0 small text-white-50">Configure your AI assistant</p>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form action="{{ url_for('main.settings') }}" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small">
+                            <i class="fas fa-key me-1 text-warning"></i>Groq API Key
+                        </label>
+                        {{ form.groq_api_key(class="form-control form-control-lg bg-light font-monospace",
+                        placeholder="gsk_xxxxxxxxxxxxxxxxxxxx", autocomplete="off") }}
+                        <div class="form-text mt-2">
+                            <i class="fas fa-shield-alt text-success me-1"></i>
+                            Your API key is stored securely and never shared. Get a free key at
+                            <a href="https://console.groq.com/keys" target="_blank"
+                                class="text-primary">console.groq.com</a>
+                        </div>
+                        {% for error in form.groq_api_key.errors %}
+                        <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        {{ form.submit(class="btn btn-primary text-white btn-lg fw-bold rounded-pill shadow-sm") }}
+                    </div>
+                </form>
+
+                {% if current_user.groq_api_key %}
+                <div class="mt-4 p-3 bg-success bg-opacity-10 rounded-3 border border-success-subtle text-center">
+                    <i class="fas fa-check-circle text-success me-1"></i>
+                    <span class="text-success fw-bold small">API Key configured</span>
+                </div>
+                {% else %}
+                <div class="mt-4 p-3 bg-warning bg-opacity-10 rounded-3 border border-warning-subtle text-center">
+                    <i class="fas fa-exclamation-circle text-warning me-1"></i>
+                    <span class="text-warning fw-bold small">No personal API key set — using system default</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{{ url_for('main.chat') }}" class="text-decoration-none text-muted">
+                <i class="fas fa-arrow-left me-2"></i>Back to Chat
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

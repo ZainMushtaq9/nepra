@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     google_id: so.Mapped[Optional[str]] = so.mapped_column(sa.String(150), unique=True)
+    groq_api_key: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
 
     bills: so.WriteOnlyMapped['Bill'] = so.relationship(back_populates='author')
@@ -65,8 +66,11 @@ class Chat(db.Model):
     __tablename__ = 'chats'
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
+    bill_id: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey(Bill.id), index=True)
     message: so.Mapped[str] = so.mapped_column(sa.Text)
     response: so.Mapped[str] = so.mapped_column(sa.Text)
+    context_snapshot: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
     timestamp: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
 
     author: so.Mapped[User] = so.relationship(back_populates='chats')
+    bill: so.Mapped[Optional[Bill]] = so.relationship()

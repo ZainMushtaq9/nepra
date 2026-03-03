@@ -16,16 +16,17 @@
                 </div>
 
                 <!-- Tabs for Upload vs Fetch -->
-                <ul class="nav nav-tabs nav-fill mb-4" id="billTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-bold" id="upload-tab" data-bs-toggle="tab"
+                <ul class="nav nav-pills nav-justified bg-light p-1 rounded-4 mb-4" id="billTabs" role="tablist">
+                    <li class="nav-item m-1" role="presentation">
+                        <button class="nav-link active fw-bold rounded-4 py-3" id="upload-tab" data-bs-toggle="pill"
                             data-bs-target="#upload" type="button" role="tab" aria-controls="upload"
-                            aria-selected="true"><i class="fas fa-camera me-2"></i>Upload Photo</button>
+                            aria-selected="true"><i class="fas fa-camera d-block mb-1 fs-4"></i>Photo</button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-success" id="fetch-tab" data-bs-toggle="tab"
-                            data-bs-target="#fetch" type="button" role="tab" aria-controls="fetch"
-                            aria-selected="false"><i class="fas fa-magic me-2"></i>Auto Fetch (100% Accurate)</button>
+                    <li class="nav-item m-1" role="presentation">
+                        <button class="nav-link fw-bold text-success rounded-4 py-3 bg-white border shadow-sm"
+                            id="fetch-tab" data-bs-toggle="pill" data-bs-target="#fetch" type="button" role="tab"
+                            aria-controls="fetch" aria-selected="false"><i class="fas fa-bolt d-block mb-1 fs-4"></i>Ref
+                            No. (Fast)</button>
                     </li>
                 </ul>
 

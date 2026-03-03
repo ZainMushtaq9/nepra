@@ -1,99 +1,164 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center my-4">
-    <div class="col-lg-10">
-        <div class="card shadow-lg border-0 rounded-4 overflow-hidden fade-in" style="height: 80vh;">
-            <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+<div class="row justify-content-center g-0" style="margin: -1.5rem -12px 0 -12px;">
+    <div class="col-12 col-lg-10 col-xl-8">
+        <div class="d-flex flex-column" style="height: calc(100vh - 80px);">
+
+            <!-- Chat Header -->
+            <div class="bg-dark text-white py-3 px-4 d-flex justify-content-between align-items-center shadow-sm"
+                style="border-radius: 0 0 15px 15px;">
                 <div>
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-robot text-primary me-2"></i> NEPRA AI Legal Assistant
-                    </h5>
-                    <small class="text-white-50">Powered by LLaMA 3.3 70B</small>
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-robot text-info me-2"></i>NEPRA Legal Assistant</h5>
+                    <small class="text-white-50">Intelligent Legal Advisor</small>
                 </div>
-                <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-outline-light rounded-pill">Back</a>
+                <div class="d-flex align-items-center gap-2">
+                    <button onclick="clearChatHistory()" class="btn btn-sm btn-outline-danger rounded-pill"
+                        title="Clear Chat History">
+                        <i class="fas fa-trash-alt me-1"></i><span class="d-none d-md-inline">Clear</span>
+                    </button>
+                    <a href="{{ url_for('main.upload') }}" class="btn btn-sm btn-outline-info rounded-pill"
+                        title="Upload / Fetch Bill">
+                        <i class="fas fa-file-invoice me-1"></i><span class="d-none d-md-inline">Bill</span>
+                    </a>
+                    <a href="{{ url_for('main.settings') }}" class="btn btn-sm btn-outline-light rounded-pill"
+                        title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-sm btn-outline-light rounded-pill"
+                        title="Dashboard">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </div>
             </div>
 
-            <div class="card-body p-0 d-flex flex-column bg-light relative">
-                <!-- Chat Messages Area -->
-                <div id="chat-messages" class="flex-grow-1 p-4 overflow-auto" style="scroll-behavior: smooth;">
-                    <!-- Welcome Message -->
-                    <div class="d-flex mb-4 ai-message">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                            style="width: 40px; height: 40px; min-width: 40px;">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border border-primary-subtle"
-                            style="max-width: 80%;">
-                            <p class="mb-0 text-dark">Hello {{ current_user.name }}! I am your AI legal assistant
-                                specialized in the NEPRA Consumer Service Manual. How can I help you today with your
-                                electricity billing or rights?</p>
-                        </div>
-                    </div>
+            <!-- Legal Disclaimer Banner -->
+            <div class="bg-warning bg-opacity-10 border-bottom border-warning px-3 py-2 text-center">
+                <small class="text-muted"><i class="fas fa-info-circle text-warning me-1"></i>
+                    یہ AI اسسٹنٹ NEPRA قوانین کی بنیاد پر عمومی رہنمائی فراہم کرتا ہے۔ یہ پیشہ ورانہ قانونی مشورے کی جگہ
+                    نہیں لیتا۔
+                    <span class="d-none d-md-inline">| This AI provides general guidance based on NEPRA rules. It does
+                        not replace professional legal advice.</span>
+                </small>
+            </div>
 
-                    <!-- History -->
-                    {% for chat in chats %}
-                    <!-- User Message -->
-                    {% if chat.message %}
-                    <div class="d-flex mb-4 justify-content-end user-message">
-                        <div class="me-3 bg-primary text-white p-3 rounded-4 rounded-top-0 shadow-sm"
-                            style="max-width: 80%;">
-                            <p class="mb-0">{{ chat.message }}</p>
-                        </div>
-                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                            style="width: 40px; height: 40px; min-width: 40px;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    </div>
-                    {% endif %}
+            <!-- Chat Messages Area -->
+            <div id="chat-messages" class="flex-grow-1 p-3 p-md-4 overflow-auto"
+                style="scroll-behavior: smooth; background: linear-gradient(180deg, #f0f2f5 0%, #e8ecf1 100%);">
 
-                    <!-- AI Response -->
-                    {% if chat.response %}
-                    <div class="d-flex mb-4 ai-message">
-                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                            style="width: 40px; height: 40px; min-width: 40px;">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border" style="max-width: 80%;">
-                            <div class="mb-0 text-dark markdown-body">{{ chat.response | safe }}</div>
-                        </div>
+                <!-- Welcome Message -->
+                <div class="d-flex mb-3 ai-message fade-in">
+                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                        style="width: 36px; height: 36px;">
+                        <i class="fas fa-robot small"></i>
                     </div>
-                    {% endif %}
-                    {% endfor %}
-
-                    <!-- Loading Indicator (Hidden by default) -->
-                    <div id="loading-indicator" class="d-flex mb-4 d-none">
-                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                            style="width: 40px; height: 40px;">
-                            <i class="fas fa-robot"></i>
+                    <div class="ms-2 bg-white p-3 rounded-4 shadow-sm border"
+                        style="max-width: 85%; border-top-left-radius: 4px !important;">
+                        <p class="mb-2 text-dark">
+                            <strong>السلام علیکم {{ current_user.name }}!</strong> 🙏<br>
+                            میں آپ کا AI قانونی مشیر ہوں، NEPRA Consumer Service Manual کے مطابق۔
+                        </p>
+                        <p class="mb-2 text-dark">
+                            <strong>I can help you with:</strong>
+                        </p>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span
+                                class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-3 py-2">
+                                <i class="fas fa-search me-1"></i>Bill Analysis
+                            </span>
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-3 py-2">
+                                <i class="fas fa-gavel me-1"></i>Legal Complaints
+                            </span>
+                            <span
+                                class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle rounded-pill px-3 py-2">
+                                <i class="fas fa-bolt me-1"></i>NEPRA Rights
+                            </span>
                         </div>
-                        <div
-                            class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border d-flex align-items-center">
-                            <div class="spinner-grow spinner-grow-sm text-primary me-1" role="status"></div>
-                            <div class="spinner-grow spinner-grow-sm text-primary me-1" role="status"></div>
-                            <div class="spinner-grow spinner-grow-sm text-primary" role="status"></div>
-                        </div>
+                        {% if has_bill %}
+                        <p class="mb-0 text-success small"><i class="fas fa-check-circle me-1"></i>
+                            Bill loaded! Ask me anything about your latest bill.</p>
+                        {% else %}
+                        <p class="mb-0 text-muted small"><i class="fas fa-arrow-up me-1"></i>
+                            Upload a bill first or enter your reference number to get started.</p>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- Input Area -->
-                <div class="p-3 bg-white border-top">
-                    <form id="chat-form" action="{{ url_for('main.chat') }}" method="POST">
-                        {{ form.hidden_tag() }}
-                        <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
-                            {{ form.message(class="form-control border-0 px-4 bg-light", placeholder="Ask a question
-                            about NEPRA rules...", autocomplete="off") }}
-                            <button class="btn btn-primary px-4 fw-bold" type="submit" id="send-btn">
-                                <i class="fas fa-paper-plane"></i> Send
-                            </button>
-                        </div>
-                    </form>
+                <!-- Chat History -->
+                {% for chat in chats %}
+                <!-- User Message -->
+                {% if chat.message %}
+                <div class="d-flex mb-3 justify-content-end user-message">
+                    <div class="me-2 bg-primary text-white p-3 rounded-4 shadow-sm"
+                        style="max-width: 85%; border-top-right-radius: 4px !important;">
+                        <p class="mb-1">{{ chat.message }}</p>
+                        <small class="opacity-75" style="font-size: 0.7rem;">{{ chat.timestamp.strftime('%I:%M %p')
+                            }}</small>
+                    </div>
+                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                        style="width: 36px; height: 36px;">
+                        <i class="fas fa-user small"></i>
+                    </div>
                 </div>
+                {% endif %}
+
+                <!-- AI Response -->
+                {% if chat.response %}
+                <div class="d-flex mb-3 ai-message">
+                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                        style="width: 36px; height: 36px;">
+                        <i class="fas fa-robot small"></i>
+                    </div>
+                    <div class="ms-2 bg-white p-3 rounded-4 shadow-sm border"
+                        style="max-width: 85%; border-top-left-radius: 4px !important;">
+                        <div class="mb-1 text-dark chat-response-body">{{ chat.response | safe }}</div>
+                        <small class="text-muted" style="font-size: 0.7rem;">{{ chat.timestamp.strftime('%I:%M %p')
+                            }}</small>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="d-flex mb-3 d-none">
+                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                        style="width: 36px; height: 36px;">
+                        <i class="fas fa-robot small"></i>
+                    </div>
+                    <div class="ms-2 bg-white p-3 rounded-4 shadow-sm border d-flex align-items-center gap-1"
+                        style="border-top-left-radius: 4px !important;">
+                        <div class="spinner-grow spinner-grow-sm text-primary" role="status"></div>
+                        <div class="spinner-grow spinner-grow-sm text-primary" role="status"
+                            style="animation-delay: 0.15s;"></div>
+                        <div class="spinner-grow spinner-grow-sm text-primary" role="status"
+                            style="animation-delay: 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-2 p-md-3 bg-white border-top shadow-sm">
+                <form id="chat-form" action="{{ url_for('main.chat') }}" method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                        <a href="{{ url_for('main.upload') }}"
+                            class="btn btn-light border-0 px-3 d-flex align-items-center" title="Upload Bill">
+                            <i class="fas fa-paperclip text-muted"></i>
+                        </a>
+                        {{ form.message(class="form-control border-0 px-3 bg-light", placeholder="اپنا سوال پوچھیں / Ask
+                        a question...", autocomplete="off", style="font-size: 0.95rem;") }}
+                        <button class="btn btn-primary px-3 px-md-4 fw-bold" type="submit" id="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Simple script for dynamic chat updates -->
+<!-- Chat Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const chatMessages = document.getElementById('chat-messages');
@@ -111,36 +176,34 @@
             const message = messageInput.value.trim();
             if (!message) return;
 
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
             // Append user message to UI immediately
             const userHtml = `
-            <div class="d-flex mb-4 justify-content-end user-message fade-in">
-                <div class="me-3 bg-primary text-white p-3 rounded-4 rounded-top-0 shadow-sm" style="max-width: 80%;">
-                    <p class="mb-0">${message}</p>
+            <div class="d-flex mb-3 justify-content-end user-message fade-in">
+                <div class="me-2 bg-primary text-white p-3 rounded-4 shadow-sm" style="max-width: 85%; border-top-right-radius: 4px !important;">
+                    <p class="mb-1">${message}</p>
+                    <small class="opacity-75" style="font-size: 0.7rem;">${timeStr}</small>
                 </div>
-                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; min-width: 40px;">
-                    <i class="fas fa-user"></i>
+                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 36px; height: 36px;">
+                    <i class="fas fa-user small"></i>
                 </div>
-            </div>
-        `;
+            </div>`;
 
-            // Remove loading if it was there (shouldn't be)
             loadingIndicator.classList.add('d-none');
-
-            // Insert user message before loading indicator
             chatMessages.insertAdjacentHTML('beforeend', userHtml);
 
             // Show loading indicator
             chatMessages.appendChild(loadingIndicator);
             loadingIndicator.classList.remove('d-none');
-
-            // Scroll
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             // Clear input and disable button
             messageInput.value = '';
             sendBtn.disabled = true;
 
-            // Prepare form data including CSRF
+            // Send to server
             const formData = new FormData(chatForm);
             formData.set('message', message);
 
@@ -148,46 +211,78 @@
                 const response = await fetch('{{ url_for("main.chat") }}', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
 
                 if (response.ok) {
                     const data = await response.json();
 
-                    // Format markdown links/bold basic (Real implementation might use a Markdown parser lib)
+                    // Basic markdown formatting
                     let formattedText = data.response
+                        .replace(/### (\d+)\. (.*)/g, '<strong class="text-primary d-block mt-2 mb-1">$1. $2</strong>')
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                         .replace(/\n/g, '<br>');
 
                     const aiHtml = `
-                    <div class="d-flex mb-4 ai-message fade-in">
-                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; min-width: 40px;">
-                            <i class="fas fa-robot"></i>
+                    <div class="d-flex mb-3 ai-message fade-in">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 36px; height: 36px;">
+                            <i class="fas fa-robot small"></i>
                         </div>
-                        <div class="ms-3 bg-white p-3 rounded-4 rounded-top-0 shadow-sm border" style="max-width: 80%;">
-                            <div class="mb-0 text-dark">${formattedText}</div>
+                        <div class="ms-2 bg-white p-3 rounded-4 shadow-sm border" style="max-width: 85%; border-top-left-radius: 4px !important;">
+                            <div class="mb-1 text-dark">${formattedText}</div>
+                            <small class="text-muted" style="font-size: 0.7rem;">${timeStr}</small>
                         </div>
-                    </div>
-                `;
+                    </div>`;
 
                     loadingIndicator.classList.add('d-none');
                     chatMessages.insertAdjacentHTML('beforeend', aiHtml);
-                    chatMessages.appendChild(loadingIndicator); // move loading to end again
+                    chatMessages.appendChild(loadingIndicator);
                 } else {
                     loadingIndicator.classList.add('d-none');
-                    alert("Error communicating with AI. Please try again.");
+                    const errorHtml = `
+                    <div class="d-flex mb-3 ai-message fade-in">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 36px; height: 36px;">
+                            <i class="fas fa-robot small"></i>
+                        </div>
+                        <div class="ms-2 bg-white p-3 rounded-4 shadow-sm border border-danger" style="max-width: 85%; border-top-left-radius: 4px !important;">
+                            <p class="mb-0 text-danger"><i class="fas fa-exclamation-triangle me-1"></i>AI service temporarily unavailable. Please try again.</p>
+                        </div>
+                    </div>`;
+                    chatMessages.insertAdjacentHTML('beforeend', errorHtml);
                 }
             } catch (error) {
                 console.error(error);
                 loadingIndicator.classList.add('d-none');
-                alert("Network error.");
+                const errorHtml = `
+                <div class="d-flex mb-3 ai-message fade-in">
+                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 36px; height: 36px;">
+                        <i class="fas fa-robot small"></i>
+                    </div>
+                    <div class="ms-2 bg-white p-3 rounded-4 shadow-sm border border-danger" style="max-width: 85%; border-top-left-radius: 4px !important;">
+                        <p class="mb-0 text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Network error. Please check your connection.</p>
+                    </div>
+                </div>`;
+                chatMessages.insertAdjacentHTML('beforeend', errorHtml);
             } finally {
                 sendBtn.disabled = false;
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+                messageInput.focus();
             }
         });
     });
+
+    async function clearChatHistory() {
+        if (!confirm('Are you sure you want to clear all chat history? This cannot be undone.')) return;
+        try {
+            const response = await fetch('{{ url_for("main.clear_chats") }}', { method: 'DELETE' });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to clear chat history. Please try again.');
+            }
+        } catch (error) {
+            alert('Network error. Please check your connection.');
+        }
+    }
 </script>
 {% endblock %}

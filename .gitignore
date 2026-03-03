@@ -1,5 +1,38 @@
+# Virtual environment
 venv/
+.venv/
+
+# Python cache
 __pycache__/
+*.pyc
+*.pyo
+
+# Database
 *.db
+
+# Environment
 .env
+
+# Uploads
 app/static/uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# Test/Dev artifacts (root level HTML scrape outputs)
+fescobill_test.html
+iescobill_test.html
+lescobill_test.html
+mepcobill_test.html
+mepco_result.html
+mepco_error.html
+
+# Dev scripts
+test_fetch.py
+test_parse.py
+read_pdf.py
+
+# Large reference files (keep locally, not in repo)
+Nepra.pdf
+nepra_text.txt

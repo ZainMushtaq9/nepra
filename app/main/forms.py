@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length, Optional
 from app.models import User
 
 class LoginForm(FlaskForm):
@@ -48,3 +48,7 @@ class DirectFetchForm(FlaskForm):
         ('tescobill', 'TESCO (Tribal Areas)')
     ], validators=[DataRequired()])
     submit_fetch = SubmitField('Fetch Bill Data')
+
+class SettingsForm(FlaskForm):
+    groq_api_key = StringField('Groq API Key', validators=[Optional()])
+    submit = SubmitField('Save Settings')
